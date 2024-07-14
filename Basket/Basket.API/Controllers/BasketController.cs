@@ -1,7 +1,10 @@
 ﻿using Basket.Application.Commands;
 using Basket.Application.GrpcService;
+using Basket.Application.Mappers;
 using Basket.Application.Queries;
 using Basket.Application.Responses;
+using Basket.Core.Entities;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -12,11 +15,15 @@ namespace Basket.API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly DiscountGrpcService _discountGrpcService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public BasketController(IMediator mediator, DiscountGrpcService discountGrpcService)
+        public BasketController(IMediator mediator, 
+                                DiscountGrpcService discountGrpcService,
+                                IPublishEndpoint publishEndpoint)
         {
             _mediator = mediator;
             this._discountGrpcService = discountGrpcService;
+            this._publishEndpoint = publishEndpoint;
         }
 
         [HttpGet]
@@ -57,6 +64,33 @@ namespace Basket.API.Controllers
             var result = await _mediator.Send(command);
 
             return Ok(result);
+        }
+
+        [Route("[action]")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Checkout([FromBody] BasketCheckout basketCheckout)
+        {
+            //get existing basket with user name
+            var query = new GetBasketByUserNameQuery(basketCheckout.UserName);
+            var basket = await _mediator.Send(query);
+
+            if(basket is null)
+            {
+                return BadRequest();
+            }
+
+            var eventMsg = BasketMapper.Mapper.Map<BasketCheckout>(basketCheckout);
+
+            eventMsg.TotalPrice = basket.TotalPrice;
+
+            await _publishEndpoint.Publish(eventMsg);
+
+            var deleteCmd = new DeleteBasketByUserNameCommand(basketCheckout.UserName);
+
+            await _mediator.Send(deleteCmd);
+
+            return Accepted();
         }
     }
 }

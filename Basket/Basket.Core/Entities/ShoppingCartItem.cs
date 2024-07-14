@@ -14,7 +14,7 @@ namespace Basket.Core.Entities
 
         public string ProductId { get; set; }
 
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         public string ImageFile { get; set; }
 

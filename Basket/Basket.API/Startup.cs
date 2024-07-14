@@ -52,14 +52,20 @@ namespace Basket.API
 
             services.AddHealthChecks()
                     .AddRedis(Configuration["CacheSettings:ConnectionString"]!, "Redis Health", HealthStatus.Degraded);
-            services.AddMassTransit(cfg =>
+            services.AddMassTransit(config =>
             {
-                cfg.UsingRabbitMq((ctx, cff) =>
+                config.UsingRabbitMq((ctx, cfg) =>
                 {
-                    cff.Host(Configuration["EventBusSettings:HostAddress"]);
+                    /*cfg.ConfigureEndpoints(ctx);
+                    cfg.Host("amqp://guest:guest@localhost:15672", h =>
+                    {
+                        h.Username(Configuration["EventBusSettings:UserName"]);
+                        h.Password(Configuration["EventBusSettings:Password"]);
+                    });*/
+                    cfg.Host(Configuration["EventBusSettings:HostAddress"]);
+
                 });
             });
-
             services.AddMassTransitHostedService();
         }
 
