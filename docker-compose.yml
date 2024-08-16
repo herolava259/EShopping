@@ -1,6 +1,7 @@
 version: '3.4'
 
 services:
+
   catalogdb:
     image: mongo
 
@@ -49,6 +50,17 @@ services:
     build:
       context: .
       dockerfile: ApiGateways/Ocelot.ApiGateway/Dockerfile
+
+  identityserver:
+    image: ${DOCKER_REGISTRY-}identityserver
+    build:
+      context: .
+      dockerfile: Infrastructure/Eshopping.Identity/Dockerfile
+
+  reverseproxy:
+    build:
+      context: .
+      dockerfile: ApiGateways/nginx/nginx.Dockerfile
 
 volumes:
   mongo_data:
