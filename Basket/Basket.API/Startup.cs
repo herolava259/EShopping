@@ -91,7 +91,7 @@ namespace Basket.API
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
-                        options.Authority = "https://id-local.eshopping.com:44344";
+                        options.Authority = "https://localhost:9009";
                         options.Audience = "Basket";
                     });
         }
