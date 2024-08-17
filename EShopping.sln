@@ -70,6 +70,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nginx", "nginx", "{8ABC9FF0
 		ApiGateways\nginx\nginx.local.conf = ApiGateways\nginx\nginx.local.conf
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Logging", "Infrastructure\Common.Logging\Common.Logging.csproj", "{D0EC71DA-7D8C-4043-8533-3C2CB56033F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -156,6 +158,10 @@ Global
 		{B6F34CE1-C98C-472D-B71D-23B6A81FFFE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6F34CE1-C98C-472D-B71D-23B6A81FFFE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6F34CE1-C98C-472D-B71D-23B6A81FFFE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0EC71DA-7D8C-4043-8533-3C2CB56033F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0EC71DA-7D8C-4043-8533-3C2CB56033F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0EC71DA-7D8C-4043-8533-3C2CB56033F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0EC71DA-7D8C-4043-8533-3C2CB56033F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,6 +191,7 @@ Global
 		{E1078CF0-45BE-4A2E-AC06-866A727A22D6} = {F9A2D348-B428-434C-884C-A5791D0E5B67}
 		{B6F34CE1-C98C-472D-B71D-23B6A81FFFE2} = {3789C659-559F-451B-BB54-53E299EC851C}
 		{8ABC9FF0-94BA-4B97-81A0-A0CE571ABC66} = {F9A2D348-B428-434C-884C-A5791D0E5B67}
+		{D0EC71DA-7D8C-4043-8533-3C2CB56033F0} = {3789C659-559F-451B-BB54-53E299EC851C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2ABB75D-5526-4FFA-AADF-2889350B6BB3}

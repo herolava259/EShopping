@@ -8,6 +8,8 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
@@ -96,13 +98,28 @@ namespace Basket.API
                     });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
+            var nginxPath = "/basket";
             if(env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseForwardedHeaders(new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                });
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Basket.API v1"));
+                app.UseSwaggerUI(options =>
+                { 
+                    foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
+                    {
+                        options.SwaggerEndpoint($"{nginxPath}/swagger/{description.GroupName}/swagger.json",
+                            $"Basket API {description.GroupName.ToUpperInvariant()}");
+                        options.RoutePrefix = String.Empty;
+                    }
+
+                    options.DocumentTitle = "Basket API Documentation";
+                });
             }
 
             app.UseHttpsRedirection();

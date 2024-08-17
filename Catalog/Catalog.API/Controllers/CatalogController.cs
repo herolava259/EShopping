@@ -12,10 +12,12 @@ namespace Catalog.API.Controllers
     public class CatalogController : ApiController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<CatalogController> _logger;
 
-        public CatalogController(IMediator mediator)
+        public CatalogController(IMediator mediator, ILogger<CatalogController> logger)
         {
             this._mediator = mediator;
+            this._logger = logger;
         }
 
         [HttpGet]
@@ -45,10 +47,20 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(IList<ProductResponse>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IList<ProductResponse>>> GetAllProducts([FromQuery]CatalogSpecParams catalogSpecParams)
         {
-            var query = new GetAllProductsQuery(catalogSpecParams);
+            try
+            {
+                var query = new GetAllProductsQuery(catalogSpecParams);
 
-            var result = await _mediator.Send(query);
-            return Ok(result);
+                var result = await _mediator.Send(query);
+
+                _logger.LogInformation("All products retrieved");
+                return Ok(result);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("An exception has occured: {Exception}", e);
+                throw;
+            }
         }
 
         [HttpGet]
