@@ -12,10 +12,12 @@ namespace Catalog.API.Controllers
     public class CatalogController : ApiController
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<CatalogController> _logger;
 
-        public CatalogController(IMediator mediator)
+        public CatalogController(IMediator mediator, ILogger<CatalogController> logger)
         {
             this._mediator = mediator;
+            this._logger = logger;
         }
 
         [HttpGet]
@@ -48,6 +50,7 @@ namespace Catalog.API.Controllers
             var query = new GetAllProductsQuery(catalogSpecParams);
 
             var result = await _mediator.Send(query);
+            _logger.LogInformation("All product retrieved");
             return Ok(result);
         }
 
@@ -59,6 +62,7 @@ namespace Catalog.API.Controllers
             var query = new GetAllBrandsQuery();
 
             var result = await _mediator.Send(query);
+ 
             return Ok(result);
         }
 
