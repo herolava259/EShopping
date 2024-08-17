@@ -47,12 +47,20 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(typeof(IList<ProductResponse>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IList<ProductResponse>>> GetAllProducts([FromQuery]CatalogSpecParams catalogSpecParams)
         {
-            var query = new GetAllProductsQuery(catalogSpecParams);
+            try
+            {
+                var query = new GetAllProductsQuery(catalogSpecParams);
 
-            var result = await _mediator.Send(query);
+                var result = await _mediator.Send(query);
 
-            _logger.LogInformation("All products retrieved");
-            return Ok(result);
+                _logger.LogInformation("All products retrieved");
+                return Ok(result);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("An exception has occured: {Exception}", e);
+                throw;
+            }
         }
 
         [HttpGet]
