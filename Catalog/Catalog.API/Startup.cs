@@ -29,7 +29,24 @@ namespace Catalog.API
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddControllers();
-            services.AddApiVersioning();
+            services.AddApiVersioning()
+                    ;
+            services
+                    .AddCors(options =>
+                    {
+                        options.AddPolicy("CorsPolicy", policy =>
+                        {
+                            policy.AllowAnyHeader()
+                                  .AllowAnyMethod()
+                                  .AllowAnyOrigin();
+                        });
+                    })
+                    .AddVersionedApiExplorer(
+                    options =>
+                    {
+                        options.GroupNameFormat = "'v'VVV";
+                        options.SubstituteApiVersionInUrl = true;
+                    });
             services.AddHealthChecks()
                     .AddMongoDb(Configuration["DatabaseSettings:ConnectionString"], 
                                 "Catalog Mongo Db Health Check", 
@@ -41,7 +58,7 @@ namespace Catalog.API
                     Title = "Catalog.API", 
                     Version = "v1" });
             });
-
+            //services.AddSwaggerDocumentation();
             //DI
             services.AddAutoMapper(typeof(Startup));
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateProductHandler).GetTypeInfo().Assembly));
@@ -82,7 +99,7 @@ namespace Catalog.API
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    foreach(var description in provider.ApiVersionDescriptions)
+                    foreach (var description in provider.ApiVersionDescriptions)
                     {
                         options.SwaggerEndpoint($"{nginxPath}/swagger/{description.GroupName}/swagger.json",
                             $"Catalog API {description.GroupName.ToUpperInvariant()}");
@@ -91,6 +108,7 @@ namespace Catalog.API
 
                     options.DocumentTitle = "Catalog API Documentation";
                 });
+                //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog.API v1"));
             }
 
             app.UseRouting();
