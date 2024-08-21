@@ -28,7 +28,7 @@ namespace Catalog.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddControllers();
+            services.AddControllers();
             services.AddApiVersioning()
                     ;
             services
@@ -70,20 +70,20 @@ namespace Catalog.API
             services.AddScoped<ICatalogContext, CatalogContext>();
 
             //Identity Server changes
-            var userPolicy = new AuthorizationPolicyBuilder()
-                                    .RequireAuthenticatedUser()
-                                    .Build();
-            services.AddControllers(config => config.Filters.Add(new AuthorizeFilter(userPolicy)));
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        options.Authority = "https://id-local.eshopping.com:44344";
-                        options.Audience = "Catalog";
-                    });
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("CanRead", policy => policy.RequireClaim("scope", "catalogapi.read"));
-            });
+            //var userPolicy = new AuthorizationPolicyBuilder()
+            //                        .RequireAuthenticatedUser()
+            //                        .Build();
+            //services.AddControllers(config => config.Filters.Add(new AuthorizeFilter(userPolicy)));
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //        .AddJwtBearer(options =>
+            //        {
+            //            options.Authority = "https://id-local.eshopping.com:44344";
+            //            options.Audience = "Catalog";
+            //        });
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("CanRead", policy => policy.RequireClaim("scope", "catalogapi.read"));
+            //});
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
@@ -97,22 +97,22 @@ namespace Catalog.API
                     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
                 });
                 app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    foreach (var description in provider.ApiVersionDescriptions)
-                    {
-                        options.SwaggerEndpoint($"{nginxPath}/swagger/{description.GroupName}/swagger.json",
-                            $"Catalog API {description.GroupName.ToUpperInvariant()}");
-                        options.RoutePrefix = String.Empty;
-                    }
+                //app.UseSwaggerUI(options =>
+                //{
+                //    foreach (var description in provider.ApiVersionDescriptions)
+                //    {
+                //        options.SwaggerEndpoint($"{nginxPath}/swagger/{description.GroupName}/swagger.json",
+                //            $"Catalog API {description.GroupName.ToUpperInvariant()}");
+                //        options.RoutePrefix = String.Empty;
+                //    }
 
-                    options.DocumentTitle = "Catalog API Documentation";
-                });
-                //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog.API v1"));
+                //    options.DocumentTitle = "Catalog API Documentation";
+                //});
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog.API v1"));
             }
 
             app.UseRouting();
-            app.UseAuthentication();
+            //app.UseAuthentication();
             app.UseStaticFiles();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
