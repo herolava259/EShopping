@@ -1,4 +1,5 @@
-﻿using Discount.API.Services;
+﻿using Common.Logging.Correlation;
+using Discount.API.Services;
 using Discount.Application.Handlers;
 using Discount.Core.Repositories;
 using Discount.Infrastructure.Repositories;
@@ -16,6 +17,7 @@ namespace Discount.API
                                     typeof(CreateDiscountCommandHandler)
                                         .GetTypeInfo().Assembly));
             services.AddScoped<IDiscountRepository, DiscountRepository>();
+            services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
             services.AddAutoMapper(typeof(Startup));
             services.AddGrpc();
 

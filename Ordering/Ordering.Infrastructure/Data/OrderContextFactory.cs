@@ -16,7 +16,10 @@ namespace Ordering.Infrastructure.Data
 
             optionBuilders.UseSqlServer("Data Source=OrderDb");
 
+
             return new OrderContext(optionBuilders.Options);
+
+            
         }
     }
 }

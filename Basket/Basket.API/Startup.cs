@@ -2,6 +2,7 @@
 using Basket.Application.Handlers;
 using Basket.Core.Repositories;
 using Basket.Infrastructure.Repositories;
+using Common.Logging.Correlation;
 using Discount.Grpc.Protos;
 using HealthChecks.UI.Client;
 using MassTransit;
@@ -30,7 +31,7 @@ namespace Basket.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddControllers();
+            services.AddControllers();
             services.AddApiVersioning();
             services.AddCors(options =>
             {
@@ -53,7 +54,9 @@ namespace Basket.API
             });
 
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(CreateShoppingCartCommandHandler).GetTypeInfo().Assembly));
+
             services.AddScoped<IBasketRepository, BasketRepository>();
+            services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<DiscountGrpcService>();
             services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>
@@ -86,16 +89,16 @@ namespace Basket.API
             services.AddMassTransitHostedService();
 
             //Identity Server changes
-            var userPolicy = new AuthorizationPolicyBuilder()
-                                    .RequireAuthenticatedUser()
-                                    .Build();
-            services.AddControllers(config => config.Filters.Add(new AuthorizeFilter(userPolicy)));
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        options.Authority = "https://id-local.eshopping.com:44344";
-                        options.Audience = "Basket";
-                    });
+            //var userPolicy = new AuthorizationPolicyBuilder()
+            //                        .RequireAuthenticatedUser()
+            //                        .Build();
+            //services.AddControllers(config => config.Filters.Add(new AuthorizeFilter(userPolicy)));
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //        .AddJwtBearer(options =>
+            //        {
+            //            options.Authority = "https://id-local.eshopping.com:44344";
+            //            options.Audience = "Basket";
+            //        });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
@@ -113,17 +116,18 @@ namespace Basket.API
                 { 
                     foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
                     {
-                        options.SwaggerEndpoint($"{nginxPath}/swagger/{description.GroupName}/swagger.json",
-                            $"Basket API {description.GroupName.ToUpperInvariant()}");
-                        options.RoutePrefix = String.Empty;
+                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                            description.GroupName.ToUpperInvariant());
+                        //options.RoutePrefix = String.Empty;
                     }
 
-                    options.DocumentTitle = "Basket API Documentation";
+                    //options.DocumentTitle = "Basket API Documentation";
                 });
             }
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors("CorsPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

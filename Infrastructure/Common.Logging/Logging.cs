@@ -2,12 +2,8 @@
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
+using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Common.Logging
 {
@@ -16,8 +12,13 @@ namespace Common.Logging
         public static Action<HostBuilderContext, LoggerConfiguration> configureLogger =>
             (context, loggerConfiguration) =>
             {
+                var env = context.HostingEnvironment;
                 loggerConfiguration
                     .MinimumLevel.Information()
+                    .Enrich.FromLogContext()
+                    .Enrich.WithProperty("ApplicationName", env.ApplicationName)
+                    .Enrich.WithProperty("EnvironmentName", env.EnvironmentName)
+                    .Enrich.WithExceptionDetails()
                     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                     .MinimumLevel.Override("Microsoft.Hosting", LogEventLevel.Information)
                     .WriteTo.Console();

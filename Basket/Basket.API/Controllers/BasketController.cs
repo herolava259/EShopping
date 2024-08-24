@@ -4,6 +4,8 @@ using Basket.Application.Mappers;
 using Basket.Application.Queries;
 using Basket.Application.Responses;
 using Basket.Core.Entities;
+using Common.Logging.Correlation;
+using EventBus.Messages.Events;
 using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -16,14 +18,21 @@ namespace Basket.API.Controllers
         private readonly IMediator _mediator;
         private readonly DiscountGrpcService _discountGrpcService;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ILogger<BasketController> _logger;
+        private readonly ICorrelationIdGenerator _correlationIdGenerator;
 
         public BasketController(IMediator mediator, 
                                 DiscountGrpcService discountGrpcService,
-                                IPublishEndpoint publishEndpoint)
+                                IPublishEndpoint publishEndpoint,
+                                ILogger<BasketController> logger,
+                                ICorrelationIdGenerator correlationIdGenerator)
         {
             _mediator = mediator;
             this._discountGrpcService = discountGrpcService;
             this._publishEndpoint = publishEndpoint;
+            this._logger = logger;
+            this._correlationIdGenerator = correlationIdGenerator;
+            _logger.LogInformation("CorrelationId {correlationId}:", _correlationIdGenerator.Get());
         }
 
         [HttpGet]
@@ -80,9 +89,10 @@ namespace Basket.API.Controllers
                 return BadRequest();
             }
 
-            var eventMsg = BasketMapper.Mapper.Map<BasketCheckout>(basketCheckout);
+            var eventMsg = BasketMapper.Mapper.Map<BasketCheckoutEvent>(basketCheckout);
 
             eventMsg.TotalPrice = basket.TotalPrice;
+            eventMsg.CorrelationId = _correlationIdGenerator.Get();
 
             await _publishEndpoint.Publish(eventMsg);
 

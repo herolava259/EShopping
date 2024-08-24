@@ -1,4 +1,5 @@
-﻿using EventBus.Messages.Common;
+﻿using Common.Logging.Correlation;
+using EventBus.Messages.Common;
 using HealthChecks.UI.Client;
 using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -27,6 +28,7 @@ namespace Ordering.API
             services.AddInfraServices(configuration: Configuration);
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<BasketOrderingConsumer>();
+            services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo

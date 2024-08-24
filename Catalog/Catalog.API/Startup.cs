@@ -3,6 +3,7 @@ using Catalog.Application.Handlers;
 using Catalog.Core.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
+using Common.Logging.Correlation;
 using HealthChecks.UI.Client;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,22 +32,22 @@ namespace Catalog.API
             services.AddControllers();
             services.AddApiVersioning()
                     ;
-            services
-                    .AddCors(options =>
-                    {
-                        options.AddPolicy("CorsPolicy", policy =>
-                        {
-                            policy.AllowAnyHeader()
-                                  .AllowAnyMethod()
-                                  .AllowAnyOrigin();
-                        });
-                    })
-                    .AddVersionedApiExplorer(
-                    options =>
-                    {
-                        options.GroupNameFormat = "'v'VVV";
-                        options.SubstituteApiVersionInUrl = true;
-                    });
+            //services
+            //        .AddCors(options =>
+            //        {
+            //            options.AddPolicy("CorsPolicy", policy =>
+            //            {
+            //                policy.AllowAnyHeader()
+            //                      .AllowAnyMethod()
+            //                      .AllowAnyOrigin();
+            //            });
+            //        })
+            //        .AddVersionedApiExplorer(
+            //        options =>
+            //        {
+            //            options.GroupNameFormat = "'v'VVV";
+            //            options.SubstituteApiVersionInUrl = true;
+            //        });
             services.AddHealthChecks()
                     .AddMongoDb(Configuration["DatabaseSettings:ConnectionString"], 
                                 "Catalog Mongo Db Health Check", 
@@ -68,7 +69,7 @@ namespace Catalog.API
             services.AddScoped<IBrandRepository, ProductRepository>();
             services.AddScoped<ITypesRepository, ProductRepository>();
             services.AddScoped<ICatalogContext, CatalogContext>();
-
+            services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
             //Identity Server changes
             //var userPolicy = new AuthorizationPolicyBuilder()
             //                        .RequireAuthenticatedUser()
@@ -86,9 +87,9 @@ namespace Catalog.API
             //});
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env/*, IApiVersionDescriptionProvider provider*/)
         {
-            var nginxPath = "catalog";
+            //var nginxPath = "catalog";
             if(env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
