@@ -1,4 +1,5 @@
-﻿using Basket.Application.GrpcService;
+﻿using Basket.API.Swagger;
+using Basket.Application.GrpcService;
 using Basket.Application.Handlers;
 using Basket.Core.Repositories;
 using Basket.Infrastructure.Repositories;
@@ -10,10 +11,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
 namespace Basket.API
@@ -32,19 +37,39 @@ namespace Basket.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddApiVersioning();
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = ApiVersionReader.Combine(
+                        new HeaderApiVersionReader("X-Version"),
+                        new QueryStringApiVersionReader("api-version", "ver"),
+                        new MediaTypeApiVersionReader("ver")
+                    );
+                /*options.ApiVersionReader = new HeaderApiVersionReader("X-Version");
+                options.ApiVersionReader = new MediaTypeApiVersionReader("ver");
+                options.ApiVersionReader = new QueryStringApiVersionReader("api-version", "ver");*/
+            });
+
+            services.AddVersionedApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
                     policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
                 });
-            }).AddVersionedApiExplorer(
-                options =>
-                {
-                    options.GroupNameFormat = "'v'VVV";
-                    options.SubstituteApiVersionInUrl = true;
-                });
+            });
+            //.AddVersionedApiExplorer(
+            //    options =>
+            //    {
+            //        options.GroupNameFormat = "'v'VVV";
+            //        options.SubstituteApiVersionInUrl = true;
+            //    });
 
             // Redis Settings
             services.AddStackExchangeRedisCache(options =>
@@ -61,14 +86,20 @@ namespace Basket.API
             services.AddScoped<DiscountGrpcService>();
             services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>
                 (o => o.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]));
-            services.AddSwaggerGen(c =>
+
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "Basket.API",
-                    Version = "v1"
-                });
+                options.OperationFilter<SwaggerDefaultValues>();
             });
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc("v1", new OpenApiInfo
+            //    {
+            //        Title = "Basket.API",
+            //        Version = "v1"
+            //    });
+            //});
 
             services.AddHealthChecks()
                     .AddRedis(Configuration["CacheSettings:ConnectionString"]!, "Redis Health", HealthStatus.Degraded);

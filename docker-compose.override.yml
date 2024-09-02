@@ -92,7 +92,7 @@ services:
       - basketdb
       - rabbitmq
     ports:
-      - "9001:80"
+      - "9001:80"   
   
   discount.api:
     container_name: discount.api
