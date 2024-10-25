@@ -10,13 +10,13 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        //var authScheme = "EShoppingGatewayAuthScheme";
-        //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //        .AddJwtBearer(authScheme, options =>
-        //        {
-        //            options.Authority = "https://localhost:9009";
-        //            options.Audience = "EShoppingGateway";
-        //        });
+        var authScheme = "EShoppingGatewayAuthScheme";
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(authScheme, options =>
+                {
+                    options.Authority = "https://localhost:9009";
+                    options.Audience = "EShoppingGateway";
+                });
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddCors(options =>
         {

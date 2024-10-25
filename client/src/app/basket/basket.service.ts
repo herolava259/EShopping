@@ -1,8 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Basket, BasketItem, IBasket, IBasketTotal } from '../../shared/models/basket';
 import { Product } from '../../shared/models/product';
+import { AcntService } from '../account/acnt.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +20,10 @@ export class BasketService {
   basketTotal$ = this.basketTotal.asObservable();
 
 
-  constructor(private httpClient: HttpClient) 
+  constructor(private httpClient: HttpClient,
+              private acntService: AcntService,
+              private router: Router
+  ) 
   { }
 
   getBasket(username: string)
@@ -37,6 +42,24 @@ export class BasketService {
       }
     });
 
+  }
+
+  checkoutBasket(basket: IBasket)
+  {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': this.acntService.authorizationHeaderValue
+      })
+    };
+
+    return this.httpClient.post<IBasket>(this.baseUrl + '/Basket/CheckoutV2', basket, httpOptions).subscribe({
+
+      next: basket =>{
+        this.basketSource.next(null);
+        this.router.navigateByUrl('/');
+      }
+    })
   }
 
   getCurrentBasket()
@@ -157,7 +180,7 @@ export class BasketService {
       basket.items[foundItemIndex].quantity--;
       this.setBasket(basket);
     }else{
-      this.removeItemFromBasket(item)
+      this.removeItemFromBasket(item);
     }
   }
 }

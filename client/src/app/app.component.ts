@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { afterNextRender, Component, Inject, OnInit } from '@angular/core';
 import { Product } from '../shared/models/product';
-import { Pagination } from '../shared/models/pagination';
 import { BasketService } from './basket/basket.service';
 
 @Component({
@@ -14,15 +13,21 @@ export class AppComponent implements OnInit{
 
   products: Product[] = [];
 
-  constructor(private basketService: BasketService){}
+  constructor(private basketService: BasketService,){
+
+    afterNextRender(() => {
+      const basket_username = localStorage.getItem('basket_username')
+
+      if(basket_username)
+      {
+        this.basketService.getBasket(basket_username);
+      }
+    })
+  }
 
   ngOnInit(): void {
-    
-    const basket_username = localStorage.getItem('basket_username')
 
-    if(basket_username)
-    {
-      this.basketService.getBasket(basket_username);
-    }
+    
+    
   }
 }

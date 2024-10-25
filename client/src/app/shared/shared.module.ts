@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaginationModule} from 'ngx-bootstrap/pagination';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { CarouselModule } from 'ngx-bootstrap/carousel';
-import { OrderSummaryComponent } from './order-summary/order-summary.component'
+import { OrderSummaryComponent } from './order-summary/order-summary.component';
 
 @NgModule({
   declarations: [
@@ -11,13 +11,12 @@ import { OrderSummaryComponent } from './order-summary/order-summary.component'
   imports: [
     CommonModule,
     PaginationModule.forRoot(),
-    CarouselModule.forRoot(),
+    CarouselModule
   ],
-
-  exports: [
+  exports:[
     PaginationModule,
-    CarouselModule,
-    OrderSummaryComponent
+    OrderSummaryComponent,
+    CarouselModule
   ]
 })
 export class SharedModule { }

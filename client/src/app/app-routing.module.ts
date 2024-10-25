@@ -1,13 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { StoreComponent } from './store/store.component';
 import { ProductDetailsComponent } from './store/product-details/product-details.component';
-import { ProductItemsComponent } from './store/product-items/product-items.component';
 import { ServerErrorComponent } from './core/server-error/server-error.component';
 import { NotFoundComponent } from './core/not-found/not-found.component';
 import { UnAuthenticatedComponent } from './core/un-authenticated/un-authenticated.component';
-import { BreadcrumbComponent } from 'xng-breadcrumb';
+import { SigninRedirectCallbackComponent } from './account/signin-redirect-callback/signin-redirect-callback.component';
+import { SignoutRedirectCallbackComponent } from './account/signout-redirect-callback/signout-redirect-callback.component';
 
 const routes: Routes = [
   {
@@ -50,7 +49,15 @@ const routes: Routes = [
     path: '**',
     redirectTo: '',
     pathMatch: 'full'
-  }
+  },
+  { 
+    path: 'signin-callback', 
+    component: SigninRedirectCallbackComponent 
+  },
+  { 
+    path: 'signout-callback', 
+    component: SignoutRedirectCallbackComponent 
+  },
 ];
 
 @NgModule({
